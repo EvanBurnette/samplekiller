@@ -1,0 +1,26 @@
+Analog, acoustic, atonal, awful, annoying, amplified, aeolian, anvil, arpeggio
+Boom, Bass, Break, Beat, Bash, Brass, bang, blare, bump, bird
+Crash, Cymbal, Chord, Clap, chant
+Drum, damp, dank, doppler, drop, drip, detuned, dissonant, din, ding, distortion, drown
+Effect, echo, explosion
+Foomp, feels, fat, feedback, foghorn, filtered, faded, fanfare, fleugelhorn, faint
+Gong, grain, gasp, growl, gurgle, gentle, gun, gravel, grind, groan, grunt
+High-hat, horn, harmony, handclaps, hum, harsh, hiss, hoarse, horrible, high pitch, hammer,
+Impulse, irritating, instrument
+Jump, jitter, jingle, jangle, jabber, jazz, jagged, jarring
+Kick, knock, keys, kaboom, kazoo, klaxon, koto
+Laser, loud, light, laugh
+Metallic, melody, muffle, microphonic, modal, muzak, moog, mono, musical, muted, melancholy, mellow, menacing, motor, murmur
+Noise, note, nasal, nasty,
+Orchestra, open high hat, ocarina, octave, odd,
+Pitch, percussion, pop, pounding, plonk, plump, pad, peep, powerful, peaceful, phone, public address system
+Quiet, quack, 
+Ramp, Riser, resonant, reverb, racket, roar, ruckus, rattle, rumble, ring, radio, rock
+Snare, snap, snip, sssss, sidestick, steeldrum, speech, sonar, sound, solid, static, silent, splash, sonic boom, scream, shriek, squawk, squeak, siren, strings, soft
+Tom, timpani, tap, tinny, thunder, tremelo, talk, thump, thud, treble, tonal, timbre
+Unison, underwater, unearthly, unnatural, unvoiced, uproar, ululant
+Vortex, voomp, vibe, voice, vocal, violin, vibration, 
+Woodblock, whistle, word, whoosh, whine, whir, whump wind, weird, whisper, wail, whack, warble, word, 
+Xylophone
+Yowl, yap, yodel
+Zip, zap, zig, zag, zoom, zither, zing,
