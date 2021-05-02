@@ -4,6 +4,8 @@
 	let samples = []
 	let sampleReaders = []
 	let samplesSrc = []
+	let samplesAudio = []
+	let linkList = []
 	// let audioSrc = '#'
 	const reader = new FileReader()
 	let handleChange = async () => {
@@ -32,11 +34,25 @@
 	<!-- <audio src={audioSrc} controls></audio> -->
 	<ul>
 	{#each samples as sample, index}
-	<a href="/"><li><p>{sample.name} size:{sample.size}</p>
+	<button bind:this={linkList[index]}
+	on:focus={linkList[index].click()}
+	on:blur={() => {
+		samplesAudio[index].pause()
+		samplesAudio[index].currentTime = 0
+		}
+	}
+	on:click={samplesAudio[index].play()}
+	><li><p>{sample.name} size:{sample.size}</p>
 
-		<audio src={samplesSrc[index]} controls></audio>
-	</li></a>
+		<audio src={samplesSrc[index]} bind:this={samplesAudio[index]}></audio>
+	</li></button>
 	
 	{/each}
 </ul>
 </main>
+
+<style>
+	ul {
+		list-style: none;
+	}
+</style>
