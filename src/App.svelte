@@ -133,7 +133,7 @@ on:keydown={(key) => {
 			}
 		})
 		if (bucketSet) {
-			setTimeout(()=>{handleArrowKey("ArrowDown")}, 400)
+			setTimeout(()=>{handleArrowKey("ArrowDown")}, 300)
 		}
 	}
 	}
