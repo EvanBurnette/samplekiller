@@ -3,8 +3,8 @@ import requests, json, sys
 
 letter = sys.argv[1]
 
-apicall1 = "https://api.datamuse.com/words?ml=noise&sp=" + letter + "*&max=30"
-apicall2 = "https://api.datamuse.com/words?ml=sound&sp=" + letter + "*&max=30"
+apicall1 = "https://api.datamuse.com/words?ml=chord&sp=" + letter + "*&max=30"
+apicall2 = "https://api.datamuse.com/words?ml=harmony&sp=" + letter + "*&max=30"
 
 r1 = requests.get(apicall1)
 r2 = requests.get(apicall2)

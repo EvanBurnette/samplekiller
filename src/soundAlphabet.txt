@@ -13,14 +13,14 @@ Laser, loud, light, laugh
 Metallic, melody, muffle, microphonic, modal, muzak, moog, mono, musical, muted, melancholy, mellow, menacing, motor, murmur
 Noise, note, nasal, nasty,
 Orchestra, open high hat, ocarina, octave, odd,
-Pitch, percussion, pop, pounding, plonk, plump, pad, peep, powerful, peaceful, phone, public address system
+Pitch, percussion, pop, pounding, plonk, plump, pad, peep, powerful, peaceful, phone, public address system, pentatonic
 Quiet, quack, 
-Ramp, Riser, resonant, reverb, racket, roar, ruckus, rattle, rumble, ring, radio, rock
-Snare, snap, snip, sssss, sidestick, steeldrum, speech, sonar, sound, solid, static, silent, splash, sonic boom, scream, shriek, squawk, squeak, siren, strings, soft
+Ramp, Riser, resonant, reverb, racket, roar, ruckus, rattle, rumble, ring, radio, rock, riff
+Snare, snap, snip, sssss, sidestick, steeldrum, speech, sonar, sound, solid, static, silent, splash, sonic boom, scream, shriek, squawk, squeak, siren, strings, soft, strum
 Tom, timpani, tap, tinny, thunder, tremelo, talk, thump, thud, treble, tonal, timbre
 Unison, underwater, unearthly, unnatural, unvoiced, uproar, ululant
-Vortex, voomp, vibe, voice, vocal, violin, vibration, 
+Vortex, voomp, vibe, voice, vocal, violin, vibration, vox
 Woodblock, whistle, word, whoosh, whine, whir, whump wind, weird, whisper, wail, whack, warble, word, 
 Xylophone
 Yowl, yap, yodel
-Zip, zap, zig, zag, zoom, zither, zing,
+Zip, zap, zig, zag, zoom, zither, zing
