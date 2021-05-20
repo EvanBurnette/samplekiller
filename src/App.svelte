@@ -30,7 +30,7 @@
 	
 
 	buckets = defaultBuckets.map(item => new Bucket(item))
-	console.log(buckets[3].shortcut)
+	// console.log(buckets[3].shortcut)
 	// let audioSrc = '#'
 	// const reader = new FileReader()
 	let handleChange = async () => {
@@ -54,23 +54,36 @@
   	// 	link.href = src.toDataURL()
   	// 	link.click();
 	// }
+	let renameAndDownload = (prefix, originalfilename, src) => {
+		let link = document.createElement('a')
+		link.download = prefix + originalfilename
+		// console.log(link.download)
+		link.href = src
+		link.click()
+	}
 	let exportSamples = () => {
-		if (samples) {
-			let link = document.createElement('a')
-			link.download = 'testDownload.wav'
-			link.href = samplesSrc[0]
-			link.click()
-		}
+		buckets.forEach((bucket) => {
+			bucket.samples.forEach((sample) => {
+				renameAndDownload(bucket.name, samples[sample].name, samplesSrc[sample])
+			})
+		})
+		// if (samples) {
+		// 	renameAndDownload('kick', samples[0].name, samplesSrc[0])
+		// 	// let link = document.createElement('a')
+		// 	// link.download = 'testDownload.wav'
+		// 	// link.href = samplesSrc[0]
+		// 	// link.click()
+		// }
 	}
 
 	let position = 0
 	let handleArrowKey = (code) => {
-		console.log(code + ' pressed')
+		// console.log(code + ' pressed')
 		if (code == 'ArrowDown'){
 			if (position < linkList.length - 1) {
 				position += 1
-				console.log(position)
-				console.log(linkList.length - 1)
+				// console.log(position)
+				// console.log(linkList.length - 1)
 			}
 			linkList[position].focus()
 		}
@@ -107,17 +120,17 @@ on:keydown={(key) => {
 	}
 	// if (key.code.length > 1){return}
 	if (key.code.slice(0,3) == 'Key'){
-		console.log(key.code + ' pressed')
+		// console.log(key.code + ' pressed')
 		let bucketSet = false
-	buckets.forEach((bucket) => {
-		if (key.code.slice(3) == bucket.shortcut){
-			console.log(key.code + " is a shortcut")
-			bucket.samples.add({'src':samplesSrc[position]})
-			buckets = buckets
-			console.log(bucket.samples)
-			bucketSet = true
-			return
-		}
+		buckets.forEach((bucket) => {
+			if (key.code.slice(3) == bucket.shortcut){
+				// console.log(key.code + " is a shortcut")
+				bucket.samples.add(position)
+				buckets = buckets
+				// console.log(bucket.samples)
+				bucketSet = true
+				return
+			}
 		})
 		if (bucketSet) {
 			setTimeout(()=>{handleArrowKey("ArrowDown")}, 400)

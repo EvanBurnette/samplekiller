@@ -19,10 +19,10 @@
 ### In Progress
 
 1. Categorized samples can be automatically renamed and downloaded by pressing the export button
-    * Choose a data structure and refactor for that data structure
+    * Choose a *better* data structure and refactor for that data structure
         - 1 Array of objects for the sample list + links + src
         
-    * Samplenames will be prefixed with the category name and saved to the user's computer
+    * ~~Samplenames will be prefixed with the category name and saved to the user's computer~~
 
 1. As a patreon hustler, I need software to get out of my way to get back to making content
     * When a user categorizes a sample, the next sample is automatically focused **(need to get working with button clicks as well)**
