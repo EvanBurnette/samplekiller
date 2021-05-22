@@ -27,6 +27,9 @@
 	'melody',
 	'bass',
 ]
+	$: classified = buckets.reduce((accum, current) => {
+		return accum + current.samples.size
+	}, 0)
 	
 
 	buckets = defaultBuckets.map(item => new Bucket(item))
@@ -133,7 +136,7 @@ on:keydown={(key) => {
 			}
 		})
 		if (bucketSet) {
-			setTimeout(()=>{handleArrowKey("ArrowDown")}, 300)
+			setTimeout(()=>{handleArrowKey("ArrowDown")}, 1)
 		}
 	}
 	}
@@ -159,7 +162,10 @@ bind:this={fileInput}>
 	</p>
 	<!-- <p>size:{sample.size}</p> -->
 		<!-- svelte-ignore a11y-media-has-caption -->
-		<audio src={samplesSrc[index]} bind:this={samplesAudio[index]}></audio>
+		{#if Math.abs(index - position) < 10}
+		<!--Added this feature to allow loading of more than 200+ samples-->
+			<audio src={samplesSrc[index]} bind:this={samplesAudio[index]}></audio>
+		{/if}
 	</li></button>
 	{/each}
 </ul>
@@ -167,7 +173,7 @@ bind:this={fileInput}>
 	{#each Object.keys(buckets) as bucket, index}
 	<button class="bucket" style="background-color: hsl({360*index/Object.keys(buckets).length}, 60%, 50%);"><li><p><u>{buckets[bucket].name[0]}</u>{buckets[bucket].name.slice(1)}</p><p>{buckets[bucket].samples.size}</p></li></button>
 	{/each}
-	<button id='export' on:click={exportSamples}>Export Samples</button>
+	<button id='export' on:click={exportSamples}>Export {classified} Samples</button>
 </ul>
 </main>
 
