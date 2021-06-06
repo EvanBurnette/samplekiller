@@ -1,12 +1,17 @@
 <script>
+// import { subscribe } from "svelte/internal";
 	// import {onMount} from 'svelte';
 	class Bucket {
-		constructor(name){
+		constructor(name, hslstring){
 			this.name = name;
 			this.samples = new Set()
 			this.shortcut = this.name.charAt(0).toUpperCase()
+			this.size = 0
+			this.duration = 0
+			this.hslstring = hslstring
 		}
 	}
+	let editMode = {"active": false, "category": ""}
 	let fileInput = {'files': []}
 	let samples = []
 	let sampleReaders = []
@@ -17,7 +22,7 @@
 	let defaultBuckets = [
 	'kick',
 	'snare',
-	'high hat',
+	'high_hat',
 	'tom',
 	'noise',
 
@@ -27,40 +32,34 @@
 	'melody',
 	'bass',
 ]
+
 	$: classified = buckets.reduce((accum, current) => {
 		return accum + current.samples.size
-	}, 0)
+	}, 0);
 	
+	$: megabytes = (buckets.reduce((accum, bucket) => {
+		return accum + bucket.size
+	}, 0) / (1024**2)).toFixed(3);
 
-	buckets = defaultBuckets.map(item => new Bucket(item))
-	// console.log(buckets[3].shortcut)
-	// let audioSrc = '#'
-	// const reader = new FileReader()
+	$: duration = (buckets.reduce((accum, bucket) => {
+		return accum + bucket.duration
+	}, 0) ).toFixed(1);
+
+	buckets = defaultBuckets.map((item, index) => new Bucket(item, `background-color: hsl(${360*index/defaultBuckets.length}, 60%, 30%);`))
 	let handleChange = async () => {
-		// samples = Array.from(fileInput.files).sort((a, b) => a.size - b.size)
 		samples = fileInput.files
-		// audioSrc = reader.readAsDataURL(fileInput.files[0])
-		console.log(samples)
 		sampleReaders.length = samples.length
-		Object.keys(samples).forEach((sample, index) => {
+		Object.keys(samples).forEach((_, index) => {
 			sampleReaders[index] = new FileReader()
-			sampleReaders[index].readAsDataURL(samples[sample])
+			sampleReaders[index].readAsDataURL(samples[index])
 			sampleReaders[index].onload = e => {
 				samplesSrc[index] = e.target.result
 			}
 		})
-		// console.log(sampleReaders.length)
 	}
-	// let download = function(name, prefix, src){
-  	// 	let link = document.createElement('a')
-  	// 	link.download = prefix + name
-  	// 	link.href = src.toDataURL()
-  	// 	link.click();
-	// }
 	let renameAndDownload = (prefix, originalfilename, src) => {
 		let link = document.createElement('a')
 		link.download = prefix + originalfilename
-		// console.log(link.download)
 		link.href = src
 		link.click()
 	}
@@ -70,34 +69,98 @@
 				renameAndDownload(bucket.name, samples[sample].name, samplesSrc[sample])
 			})
 		})
-		// if (samples) {
-		// 	renameAndDownload('kick', samples[0].name, samplesSrc[0])
-		// 	// let link = document.createElement('a')
-		// 	// link.download = 'testDownload.wav'
-		// 	// link.href = samplesSrc[0]
-		// 	// link.click()
-		// }
 	}
 
 	let position = 0
 	let handleArrowKey = (code) => {
-		// console.log(code + ' pressed')
+		// let subSet = null;
+			// if (editMode.active) {
+				// console.log('editMode.active is true')
+				// buckets.forEach((bucket) => {
+				// 	if (bucket.name == editMode.category) {
+				// 		subSet = bucket.samples
+				// 		return
+				// 	}})
+				// }
 		if (code == 'ArrowDown'){
 			if (position < linkList.length - 1) {
 				position += 1
-				// console.log(position)
-				// console.log(linkList.length - 1)
+				// console.log('down pressed')
 			}
-			linkList[position].focus()
-		}
+			// if (editMode.subSet.size > 0 && editMode.active) {
+			// 	while (!editMode.subSet.has(position)) {
+			// 		position += 1
+			// 		}
+			// 	}
+			}
+		
 		if (code == 'ArrowUp') {
 			position -= 1
 			if (position < 0){
 				position = 0
 			}
-			linkList[position].focus()
+		}
+		linkList[position].focus()
+	}
+
+	let scrubCategories = () => {
+		buckets.forEach((bucket) => {
+				if (samples[position].category == bucket.name) {
+					bucket.samples.delete(position)
+					bucket.size -= samples[position].size
+					bucket.duration -= samplesAudio[position].duration
+					samples[position].hslstring = ";"
+					samples[position].category = ''
+					return
+				}
+				return
+			})
+	}
+
+	let handleKeydown = (key) => {
+		if (key.code == 'Tab' || key.code == 'Enter' || key.code == "Space"){
+			return
+		}
+		if (editMode.active && key.code.slice(3) != 'X'){return}
+		key.preventDefault()
+		
+		if (key.code == "ArrowDown" || key.code == "ArrowUp"){
+		handleArrowKey(key.code)
+		return
+		}
+		
+		if (key.code.slice(0,3) == 'Key'){
+			console.log(key.code.slice(3))
+			let bucketSet = false
+			if (key.code.slice(3) == 'X'){
+				scrubCategories()
+				bucketSet = true
+				buckets = buckets
+				// return
+			}
+			else {
+				buckets.forEach((bucket) => {
+				if (key.code.slice(3) == bucket.shortcut){
+				scrubCategories()
+				// console.log(key.code + " is a shortcut")
+				bucketSet = true
+				if (bucket.samples.has(position)){return}
+				bucket.samples.add(position)
+				bucket.size += samples[position].size
+				bucket.duration += samplesAudio[position].duration
+				samples[position].hslstring = bucket.hslstring
+				samples[position].category = bucket.name
+				buckets = buckets
+				// console.log(bucket.samples)
+				// return
+			}
+		})
+	}
+		if (bucketSet) {
+			setTimeout(()=>{handleArrowKey("ArrowDown")}, 1)
 		}
 	}
+}
 
 </script>
 	<!-- svelte-ignore a11y-media-has-caption -->
@@ -114,70 +177,137 @@
 </svelte:head>
 
 <main
-on:keydown={(key) => {
-	if (key.code == 'Tab' || key.code == 'Enter' || key.code == "Space"){return}
-	key.preventDefault()
-	if (key.code == "ArrowDown" || key.code == "ArrowUp"){
-		handleArrowKey(key.code)
-		return
-	}
-	// if (key.code.length > 1){return}
-	if (key.code.slice(0,3) == 'Key'){
-		// console.log(key.code + ' pressed')
-		let bucketSet = false
-		buckets.forEach((bucket) => {
-			if (key.code.slice(3) == bucket.shortcut){
-				// console.log(key.code + " is a shortcut")
-				bucket.samples.add(position)
-				buckets = buckets
-				// console.log(bucket.samples)
-				bucketSet = true
-				return
-			}
-		})
-		if (bucketSet) {
-			setTimeout(()=>{handleArrowKey("ArrowDown")}, 1)
-		}
-	}
-	}
-}>
-<input multiple accept="audio/*" type="file" id="fileInput"
+on:keydown={(key) => {handleKeydown(key)}}
+>
+<div id="setup">
+<input multiple accept="audio/*" type="file" id="fileInput" width="200px"
 on:change={handleChange}
 bind:this={fileInput}>
+<button id='customize'>Customize prefixes</button></div>
 <ul class="samples">
+	{#if editMode.active}
+		<p>Press x to remove selected sample from {editMode.category} category</p>
+	{/if}
 	{#each samples as sample, index}
-	<button bind:this={linkList[index]}
+		{#if editMode.active}
+			{#if sample.category == editMode.category}
+			<button bind:this={linkList[index]} style={samples[index].hslstring}
+			on:focus={() => {
+			position = index
+			linkList[index].click()
+		}
+			}
+			on:blur={() => { //when button loses focus
+				samplesAudio[index].pause()
+				samplesAudio[index].currentTime = 0
+				}
+			}
+			on:click={() => {
+				if (samplesAudio[index].paused){
+					samplesAudio[index].currentTime = 0
+					samplesAudio[index].play()
+					return
+				}
+				else {
+					samplesAudio[index].pause()
+					samplesAudio[index].currentTime = 0
+				}
+				}}
+			><div>
+				<p>{sample.category ? sample.category : ""}{sample.name}</p>
+			<!-- <p>size:{sample.size}</p> -->
+				<!-- svelte-ignore a11y-media-has-caption -->
+				{#if Math.abs(index - position) < 20}
+				<!--Added this feature to allow loading of more than 200+ samples-->
+					<audio src={samplesSrc[index]} bind:this={samplesAudio[index]}></audio>
+				{/if}
+			</div>
+		</button>
+			{/if}
+		{:else}
+	<button bind:this={linkList[index]} style={samples[index].hslstring}
 	on:focus={() => {
 	position = index
 	linkList[index].click()
 }
 	}
-	on:blur={() => {
+	on:blur={() => { //when button loses focus
 		samplesAudio[index].pause()
 		samplesAudio[index].currentTime = 0
 		}
 	}
-	on:click={samplesAudio[index].play()}
-	><li><p>{sample.name} 
-	</p>
+	on:click={() => {
+		if (samplesAudio[index].paused){
+			samplesAudio[index].currentTime = 0
+			samplesAudio[index].play()
+			return
+		}
+		else {
+			samplesAudio[index].pause()
+			samplesAudio[index].currentTime = 0
+		}
+		}}
+	><div>
+		<p>{sample.category ? sample.category : ""}{sample.name}</p>
 	<!-- <p>size:{sample.size}</p> -->
 		<!-- svelte-ignore a11y-media-has-caption -->
 		{#if Math.abs(index - position) < 10}
 		<!--Added this feature to allow loading of more than 200+ samples-->
 			<audio src={samplesSrc[index]} bind:this={samplesAudio[index]}></audio>
 		{/if}
-	</li></button>
+	</div>
+</button>
+	{/if}
 	{/each}
+	
 </ul>
 <ul class="buckets">
-	{#each Object.keys(buckets) as bucket, index}
-	<button class="bucket" style="background-color: hsl({360*index/Object.keys(buckets).length}, 60%, 50%);"><li><p><u>{buckets[bucket].name[0]}</u>{buckets[bucket].name.slice(1)}</p><p>{buckets[bucket].samples.size}</p></li></button>
+	{#each buckets as bucket, index}
+	<button class="bucket"
+	style={bucket.hslstring}
+	><li><p>
+		{#if editMode.active && editMode.category == bucket.name}
+		<div class="prefixEdit">
+			<label for="prefixEditInput"></label>
+			<input id="prefixEditInput" class="categoryNameInput" type="text" value={bucket.name}>
+		</div>
+		{/if}
+		<u>{bucket.name[0]}</u>{bucket.name.slice(1)}</p><p>{bucket.samples.size}</p>
+		<button class='edit' on:click={() => {
+			if (editMode.category == bucket.name || editMode.category == ''){
+				editMode.active = !editMode.active
+			}
+			else if (editMode.category != bucket.name && editMode.active == false){
+				editMode.active = true
+			}
+			editMode.category = bucket.name
+			editMode.subSet = bucket.samples
+		}}>Edit</button></li>
+	</button>
 	{/each}
-	<button id='export' on:click={exportSamples}>Export {classified} Samples</button>
+	<button id='export' on:click={exportSamples}><p>Export {classified} Samples ({megabytes} MB, {duration} s)</p></button>
+	<!-- <button id="rename">Rename Categories</button> -->
 </ul>
 </main>
 
 <style>
+	.prefixEdit {
+		position: relative;
+		top: 100%;
+		width: 20px;
+		right: 50%;
+		z-index: 300;
+	}
+	.prefixEdit:hover{
+		cursor: text;
+	}
+	#prefixEditInput {
+		color: white;
+		background: black;
+	}
+	.edit {
+		background: #333;
+	}
 	#export {
 		grid-column: 1/3;
 		background: #222;
@@ -191,13 +321,16 @@ bind:this={fileInput}>
 		color: #222;
 		}
 
-	button:hover, input:hover {
+	button:hover, #fileInput:hover {
 		cursor: pointer;
 	}
-	input {
+	#setup {
 		position: fixed;
 		z-index: 200;
 		background: black;
+	}
+	#customize {
+		left: 40%;
 	}
 	main {
 		display: grid;
@@ -226,7 +359,7 @@ bind:this={fileInput}>
 	}
 	.bucket li {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: 1fr 1fr 1fr;
 	}
 	.buckets {
 		margin: 0;
