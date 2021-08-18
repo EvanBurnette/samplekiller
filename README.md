@@ -6,7 +6,7 @@ Produce sample packs super fast with sample killer! Classify samples you love an
 
 In my [last video](https://www.youtube.com/watch?v=XlUUVPgfN6M) I showed how we can easily produce hundreds of samples with Audacity by using sound finder, export multiple, and some macro magic to normalize the samples automatically.
 
-In the aftermath of that video, I found myself still overwhelmed by the amount of manual grunt work and underwhelmed by the existing solutions available to create super simple sample packs. I wanted something that was basically a file browser that instantly previews samples for you and allows you to classify them with minimal user input.
+In the aftermath of that video, I found myself still overwhelmed by the amount of manual grunt work and underwhelmed by the existing solutions available to create super simple sample packs. I wanted something that was essentially a file browser except that it would instantly preview samples for you and allow you to classify them with minimal user input.
 
 ## Enter Sample Killer:
 
