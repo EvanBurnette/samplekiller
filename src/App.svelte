@@ -94,7 +94,7 @@
         item,
         `background-color: hsl(${
           (360 * index) / defaultBuckets.length
-        }, 60%, 30%);`
+        }, 60%, 35%);`
       )
   );
   let handleChange = async () => {
@@ -252,11 +252,12 @@
 
 <main
   on:keydown={
-  (key) => {
-	if (!editCategories){
-    	handleKeydown(key);
-	}
-  }}
+    (key) => {
+	    if (!editCategories){
+    	  handleKeydown(key);
+	    }
+    }
+  }
 >
   <div id="setup">
     <input
