@@ -240,6 +240,7 @@
 <!-- svelte-ignore a11y-media-has-caption -->
 <!-- <audio src={audioSrc} controls></audio> -->
 <svelte:head>
+  <title>Sample Killer</title>
   <style>
     body {
       background: black;
@@ -283,6 +284,9 @@
       <p>Press x to remove selected sample from {editMode.category} category</p>
 	  {:else}
 	  <h2>Samples</h2>
+    {/if}
+    {#if samples.length == 0}
+      <div id="splash"><h1><h3>beepnboop</h3>SAMPLE<br>KILLER</h1></div>
     {/if}
     {#each samples as sample, index}
       {#if editMode.active}
@@ -415,6 +419,23 @@
 </main>
 
 <style>
+  #splash {
+    color: gray;
+    font-family: monospace;
+    height: 90vh;
+    display: grid;
+    place-items: center;
+    font-size: 3rem;
+    line-height: 4rem;
+  }
+  #splash h1 {
+    transform: scale(1,2.5) skew(-40deg);
+  }
+  h3 {
+    font-size: 2rem;
+    line-height: 2rem;
+    letter-spacing: 1rem;
+  }
   /* .prefixEdit {
     position: relative;
     top: 100%;
