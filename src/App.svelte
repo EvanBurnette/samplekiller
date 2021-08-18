@@ -1,6 +1,4 @@
 <script>
-  // import { subscribe } from "svelte/internal";
-  // import {onMount} from 'svelte';
   class arraySet extends Array {
     add(item) {
       if (this.includes(item)) {
@@ -66,7 +64,7 @@
     buckets.reduce((accum, bucket) => {
       return accum + bucket.size;
     }, 0) /
-    1024 ** 2
+    1024 * 1024
   ).toFixed(2);
 
   $: duration = buckets
@@ -77,7 +75,6 @@
 
     var activeSampleButtons = []
 	$: {
-    // console.log(samples)
     activeSampleButtons = []
     if (samples) {
     Object.keys(samples).forEach((key, index) => {
@@ -109,7 +106,6 @@
       sampleReaders[index].onload = (e) => {
         samplesSrc[index] = e.target.result;
       };
-		// sampleSrc[index] = await sampleReaders.onload().target.result
     });
   };
   let renameAndDownload = (prefix, originalfilename, src) => {
@@ -181,16 +177,12 @@
     if (key.code == "Tab" || key.code == "Enter" || key.code == "Space") {
       return;
     }
-    // if (editMode.active && key.code.slice(3) != "X") {
-    //   return;
-    // }
     key.preventDefault();
 
     if (key.code == "ArrowDown" || key.code == "ArrowUp") {
       handleArrowKey(key.code);
       return;
     }
-
     if (key.code.slice(0, 3) == "Key") {
       console.log(key.code.slice(3));
       let bucketSet = false;
@@ -236,7 +228,6 @@
     }
   };
 </script>
-
 <!-- svelte-ignore a11y-media-has-caption -->
 <!-- <audio src={audioSrc} controls></audio> -->
 <svelte:head>
@@ -369,7 +360,6 @@
     <h2 id="customize">
       Categories
 	  <br>
-      <!-- <button id="customize_categories" on:click={() => editCategories = !editCategories}>{editCategories ? 'Exit Category Edit Mode' : 'Edit Categories'}</button> -->
     </h2>
     {#each buckets as bucket, index}
       <button class="bucket" style={bucket.hslstring}>
@@ -382,17 +372,11 @@
 			buckets = buckets
 			editCategories = false
 			}}>
-            <!-- {#if editMode.active && editMode.category == bucket.name}
-		<div class="prefixEdit">
-			<label for="prefixEditInput"></label>
-			<input id="prefixEditInput" class="categoryNameInput" type="text" value={bucket.name}>
-		</div>
-		{/if} -->
             <u>{bucket.name[0]}</u>{bucket.name.slice(1)}
           </p>
           <p>{bucket.samples.length}</p>
           <button
-            class="edit"
+            class="edit" id="edit"
             on:click={() => {
               editMode.index = 0
               if (editMode.category == bucket.name || editMode.category == "") {
@@ -404,17 +388,14 @@
                 editMode.active = true;
               }
               editMode.category = bucket.name;
-			  activeSampleButtons = document.getElementsByClassName('sampleButton')
-			//   console.log(Object.keys(activeSampleButtons.length))
-              // editMode.subSet = bucket.samples
+			        activeSampleButtons = document.getElementsByClassName('sampleButton')
             }}>Edit</button>
         </li>
       </button>
     {/each}
-    <button id="export" on:click={exportSamples}
-      ><p>Export {classified} Samples ({megabytes} MB, {duration} s)</p></button
-    >
-    <!-- <button id="rename">Rename Categories</button> -->
+    <button id="export" on:click={exportSamples}>
+      <p>Export {classified} Samples ({megabytes} MB, {duration} s)</p>
+    </button>
   </ul>
 </main>
 
@@ -436,20 +417,6 @@
     line-height: 2rem;
     letter-spacing: 1rem;
   }
-  /* .prefixEdit {
-    position: relative;
-    top: 100%;
-    width: 20px;
-    right: 50%;
-    z-index: 300;
-  }
-  .prefixEdit:hover {
-    cursor: text;
-  }
-  #prefixEditInput {
-    color: white;
-    background: black;
-  } */
   .edit {
     background: #333;
   }
@@ -485,19 +452,12 @@
     text-align: center;
     border: solid white;
   }
-  /* #customize_categories {
-    background: #222;
-    color: #aaa;
-  } */
   main {
     display: grid;
     grid-template-columns: auto auto;
   }
   .samples {
     position: absolute;
-    /* top: 50px; */
-    /* overflow-x: hidden; */
-    /* overflow-y: scroll; */
     display: flex;
     flex-direction: column;
     list-style: none;
