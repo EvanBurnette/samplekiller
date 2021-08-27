@@ -31,7 +31,7 @@
 		this.name = newname;
 		this.shortcut = this.name.charAt(0).toUpperCase();
 	}
-  }
+}
 
   let editMode = { active: false, category: "", index: 0 };
   let editCategories = false;
@@ -45,7 +45,7 @@
   let defaultBuckets = [
     "kick",
     "snare",
-    "high_hat",
+    "high hat",
     "tom",
     "noise",
 
@@ -64,7 +64,7 @@
     buckets.reduce((accum, bucket) => {
       return accum + bucket.size;
     }, 0) /
-    1024 * 1024
+    (1024 * 1024)
   ).toFixed(2);
 
   $: duration = buckets
@@ -92,9 +92,9 @@
     (item, index) =>
       new Bucket(
         item,
-        `background-color: hsl(${
+        `box-shadow: 0 0 1rem .3rem hsla(${
           (360 * index) / defaultBuckets.length
-        }, 60%, 35%);`
+        }, 100%, 50%, 100%);`
       )
   );
   let handleChange = async () => {
@@ -118,7 +118,7 @@
     buckets.forEach((bucket) => {
       bucket.samples.forEach((sample) => {
         renameAndDownload(
-          bucket.name,
+          bucket.name.replace(' ', '_'),
           samples[sample].name,
           samplesSrc[sample]
         );
@@ -286,7 +286,7 @@
           <button
 		  	class="sampleButton"
             bind:this={linkList[index]}
-            style={samples[index].hslstring}
+            style={samples[index].hslstring} 
             on:focus={() => {
               position = index;
               editMode.index = activeSampleButtons.indexOf(position)
@@ -360,11 +360,26 @@
   <ul class="buckets">
     <h2 id="customize">
       Categories
-	  <br>
     </h2>
+    <div>
     {#each buckets as bucket, index}
-      <button class="bucket" style={bucket.hslstring}>
+      <button class="bucket"
+      on:click={() => {
+        editMode.index = 0
+        if (editMode.category == bucket.name || editMode.category == "") {
+          editMode.active = !editMode.active;
+        } else if (
+          editMode.category != bucket.name &&
+          editMode.active == false
+        ) {
+          editMode.active = true;
+        }
+        editMode.category = bucket.name;
+        activeSampleButtons = document.getElementsByClassName('sampleButton')
+      }}
+      >
 		<li>
+      <p class="led" style="{bucket.hslstring}"></p>
           <p contenteditable='true'
 		  bind:innerHTML={defaultBuckets[index]}
 		  on:focus={() => editCategories = true}
@@ -373,30 +388,15 @@
 			buckets = buckets
 			editCategories = false
 			}}>
-            <u>{bucket.name[0]}</u>{bucket.name.slice(1)}
           </p>
           <p>{bucket.samples.length}</p>
-          <button
-            class="edit" id="edit"
-            on:click={() => {
-              editMode.index = 0
-              if (editMode.category == bucket.name || editMode.category == "") {
-                editMode.active = !editMode.active;
-              } else if (
-                editMode.category != bucket.name &&
-                editMode.active == false
-              ) {
-                editMode.active = true;
-              }
-              editMode.category = bucket.name;
-			        activeSampleButtons = document.getElementsByClassName('sampleButton')
-            }}>Edit</button>
         </li>
       </button>
     {/each}
     <button id="export" on:click={exportSamples}>
       <p>Export {classified} Samples ({megabytes} MB, {duration} s)</p>
     </button>
+  </div>
   </ul>
 </main>
 
@@ -417,9 +417,6 @@
     font-size: 2rem;
     line-height: 2rem;
     letter-spacing: 1rem;
-  }
-  .edit {
-    background: #333;
   }
   #export {
     grid-column: 1/3;
@@ -444,14 +441,11 @@
     background: black;
     bottom: 0;
   }
-  #customize {
-    grid-column: 1/3;
-  }
   h2 {
     padding: 0;
     margin: 0;
     text-align: center;
-    border: solid white;
+    border-bottom: solid white;
   }
   main {
     display: grid;
@@ -472,13 +466,16 @@
   }
   .samples button:focus,
   .buckets button:focus {
-    background: lightgray;
+    background: #AAA;
     color: black;
-    box-shadow: 0 0 0 5px white;
+    /* box-shadow: 0 0 0 5px white; */
   }
-  .bucket li {
+  .bucket > li {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+  }
+  .bucket > li > p {
+    text-align: left;
   }
   .buckets {
     margin: 0;
@@ -487,12 +484,28 @@
     height: 100vh;
     width: 50vw;
     transform: translate(100%, 0);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
   }
-  .buckets button {
+  .buckets > div {
+    height: 95%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .1rem;
+  }
+  .buckets > div > button {
+    flex-basis: 100%;
     color: white;
+    background: none;
     font-size: 1.15rem;
     margin: 2px;
+    border: none;
+  }
+
+  p.led {
+    margin: auto;
+    background: white;
+    border-radius: 50%;
+    height: .5rem;
+    width: .5rem;
+    border: solid white .05rem;
   }
 </style>
