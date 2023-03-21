@@ -1,4 +1,7 @@
 <script>
+  import JSZip, { files } from "jszip";
+  import { saveAs } from "file-saver";
+
   class arraySet extends Array {
     add(item) {
       if (this.includes(item)) {
@@ -27,11 +30,11 @@
       this.duration = 0;
       this.hslstring = hslstring;
     }
-	setname(newname) {
-		this.name = newname;
-		this.shortcut = this.name.charAt(0).toUpperCase();
-	}
-}
+    setname(newname) {
+      this.name = newname;
+      this.shortcut = this.name.charAt(0).toUpperCase();
+    }
+  }
 
   let editMode = { active: false, category: "", index: 0 };
   let editCategories = false;
@@ -73,19 +76,19 @@
     }, 0)
     .toFixed(1);
 
-    var activeSampleButtons = []
-	$: {
-    activeSampleButtons = []
+  var activeSampleButtons = [];
+  $: {
+    activeSampleButtons = [];
     if (samples) {
-    Object.keys(samples).forEach((key, index) => {
-      let sample = samples[key]
-      if (editMode.active) {
-        if (editMode.category == sample.category) activeSampleButtons.push(index)
-      }
-      else activeSampleButtons.push(index)
-    })
-    console.log(activeSampleButtons)
-  }
+      Object.keys(samples).forEach((key, index) => {
+        let sample = samples[key];
+        if (editMode.active) {
+          if (editMode.category == sample.category)
+            activeSampleButtons.push(index);
+        } else activeSampleButtons.push(index);
+      });
+      // console.log(activeSampleButtons);
+    }
   }
 
   buckets = defaultBuckets.map(
@@ -99,6 +102,7 @@
   );
   let handleChange = async () => {
     samples = fileInput.files;
+    // console.log(samples)
     sampleReaders.length = samples.length;
     Object.keys(samples).forEach((_, index) => {
       sampleReaders[index] = new FileReader();
@@ -108,27 +112,51 @@
       };
     });
   };
-  let renameAndDownload = (prefix, originalfilename, src) => {
-    let link = document.createElement("a");
-    link.download = prefix + originalfilename;
-    link.href = src;
-    link.click();
-  };
-  let exportSamples = () => {
-    buckets.forEach((bucket) => {
-      bucket.samples.forEach((sample) => {
-        renameAndDownload(
-          bucket.name.replace(' ', '_'),
-          samples[sample].name,
-          samplesSrc[sample]
-        );
-      });
-    });
+
+  // let renameAndDownload = (prefix, originalfilename, src) => {
+  //   let link = document.createElement("a");
+  //   link.download = prefix + originalfilename;
+  //   link.href = src;
+  //   link.click();
+  // };
+  // let exportSamples = () => {
+  //   buckets.forEach((bucket) => {
+  //     bucket.samples.forEach((sample) => {
+  //       renameAndDownload(
+  //         bucket.name.replace(" ", "_"),
+  //         samples[sample].name,
+  //         samplesSrc[sample]
+  //       );
+  //     });
+  //   });
+  // };
+
+  const exportZip = async () => {
+    var zip = new JSZip();
+
+    for (const bucket of buckets) {
+      const prefix = bucket.name.replace(" ", "_");
+      for (const sample of bucket.samples) {
+        const newName = prefix + samples[sample].name;
+        const thisFile = samples[sample];
+        zip.file(newName, thisFile);
+      }
+    }
+    console.info("done adding files to zip");
+    zip.generateAsync({ type: "blob" }).then(
+      function (blob) {
+        // 1) generate the zip file
+        saveAs(blob, "samplePack.zip"); // 2) trigger the download
+      },
+      function (err) {
+        console.info("\nSAMPLEKILLER ERROR!!!\n", err);
+      }
+    );
   };
 
   let position = 0;
   let handleArrowKey = (code) => {
-    if (editMode.active){
+    if (editMode.active) {
       if (code == "ArrowDown") {
         if (editMode.index < activeSampleButtons.length - 1) {
           editMode.index += 1;
@@ -141,15 +169,12 @@
         }
       }
       linkList[activeSampleButtons[editMode.index]].focus();
-    }
-    else {
+    } else {
       if (code == "ArrowDown") {
         if (position < linkList.length - 1) {
           position += 1;
         }
-      }
-
-      if (code == "ArrowUp") {
+      } else if (code == "ArrowUp") {
         if (position > 0) {
           position -= 1;
         }
@@ -166,7 +191,7 @@
         bucket.duration -= samplesAudio[position].duration;
         samples[position].hslstring = ";";
         samples[position].category = "";
-		buckets = buckets
+        buckets = buckets;
         return;
       }
       return;
@@ -184,7 +209,7 @@
       return;
     }
     if (key.code.slice(0, 3) == "Key") {
-      console.log(key.code.slice(3));
+      // console.log(key.code.slice(3));
       let bucketSet = false;
       if (key.code.slice(3) == "X") {
         scrubCategories();
@@ -194,7 +219,7 @@
       } else {
         buckets.forEach((bucket) => {
           if (key.code.slice(3) == bucket.shortcut) {
-			scrubCategories();
+            scrubCategories();
             // console.log(key.code + " is a shortcut")
             bucketSet = true;
             if (bucket.samples.has(position)) {
@@ -203,31 +228,31 @@
             bucket.samples.add(position);
             bucket.size += samples[position].size;
             bucket.duration += samplesAudio[position].duration;
-            samples[position].hslstring = bucket.hslstring || ';';
+            samples[position].hslstring = bucket.hslstring || ";";
             samples[position].category = bucket.name;
             buckets = buckets;
             // console.log(bucket.samples)
-            return
+            return;
           }
-		  buckets = buckets;
+          buckets = buckets;
         });
       }
       if (bucketSet) {
         setTimeout(() => {
           if (editMode.active) {
             if (editMode.index >= activeSampleButtons.length) {
-              editMode.index -= 1
+              editMode.index -= 1;
             }
             linkList[activeSampleButtons[editMode.index]].focus();
-          }
-          else handleArrowKey("ArrowDown");
+          } else handleArrowKey("ArrowDown");
         }, 1);
-        
+
         bucketSet = false;
       }
     }
   };
 </script>
+
 <!-- svelte-ignore a11y-media-has-caption -->
 <!-- <audio src={audioSrc} controls></audio> -->
 <svelte:head>
@@ -251,13 +276,11 @@
 </svelte:head>
 
 <main
-  on:keydown={
-    (key) => {
-	    if (!editCategories){
-    	  handleKeydown(key);
-	    }
+  on:keydown={(key) => {
+    if (!editCategories) {
+      handleKeydown(key);
     }
-  }
+  }}
 >
   <div id="setup">
     <input
@@ -265,7 +288,6 @@
       accept="audio/*"
       type="file"
       id="fileInput"
-      
       on:change={handleChange}
       bind:this={fileInput}
     />
@@ -274,23 +296,27 @@
     {#if editMode.active}
       <h2>Edit {editMode.category} samples</h2>
       <p>Press x to remove selected sample from {editMode.category} category</p>
-	  {:else}
-	  <h2>Samples</h2>
+    {:else}
+      <h2>Samples</h2>
     {/if}
     {#if samples.length == 0}
-      <div id="splash"><h1><h3>beepnboop</h3>SAMPLE<br>KILLER</h1></div>
+      <div id="splash">
+        <h1>
+          SAMPLE<br />KILLER
+        </h1>
+      </div>
     {/if}
     {#each samples as sample, index}
       {#if editMode.active}
         {#if sample.category == editMode.category}
           <button
-		  	class="sampleButton"
+            class="sampleButton"
             bind:this={linkList[index]}
-            style={samples[index].hslstring} 
+            style={samples[index].hslstring}
             on:focus={() => {
               position = index;
-              editMode.index = activeSampleButtons.indexOf(position)
-              if (editMode.index < 0) editMode.index = 0
+              editMode.index = activeSampleButtons.indexOf(position);
+              if (editMode.index < 0) editMode.index = 0;
               linkList[index].click();
             }}
             on:blur={() => {
@@ -320,8 +346,8 @@
           </button>
         {/if}
       {:else}
-	  <button
-	  	class="sampleButton"
+        <button
+          class="sampleButton"
           bind:this={linkList[index]}
           style={samples[index].hslstring}
           on:focus={() => {
@@ -353,54 +379,78 @@
             {/if}
           </div>
         </button>
+        <!-- {#if samplesSrc[index]}
+          <p>
+            {window
+            .atob(samplesSrc[index]
+            .substr(27 + 48, 8))
+            .charCodeAt(2)}
+          </p>
+          <p>
+            {window
+              .atob(samplesSrc[index]
+              .substr(27 + 48 + 384, 8))
+              .charCodeAt(2)}
+          </p>
+          <p>
+            {window
+              .atob(samplesSrc[index]
+              .substr(27 + 48 + 768, 8))
+              .charCodeAt(2)}
+          </p>
+        {/if} -->
       {/if}
     {/each}
-	<br>
+    <br />
   </ul>
   <ul class="buckets">
-    <h2 id="customize">
-      Categories
-    </h2>
+    <h2 id="customize">Categories</h2>
     <div>
-    {#each buckets as bucket, index}
-      <button class="bucket"
-      on:click={() => {
-        editMode.index = 0
-        if (editMode.category == bucket.name || editMode.category == "") {
-          editMode.active = !editMode.active;
-        } else if (
-          editMode.category != bucket.name &&
-          editMode.active == false
-        ) {
-          editMode.active = true;
-        }
-        editMode.category = bucket.name;
-        activeSampleButtons = document.getElementsByClassName('sampleButton')
-      }}
-      >
-		<li>
-      <p class="led" style="{bucket.hslstring}"></p>
-          <p contenteditable='true'
-		  bind:innerHTML={defaultBuckets[index]}
-		  on:focus={() => editCategories = true}
-		  on:blur={() => {
-			bucket.setname(defaultBuckets[index])
-			buckets = buckets
-			editCategories = false
-			}}>
-          </p>
+      {#each buckets as bucket, index}
+        <button
+          class="bucket"
+          on:click={() => {
+            editMode.index = 0;
+            if (editMode.category == bucket.name || editMode.category == "") {
+              editMode.active = !editMode.active;
+            } else if (
+              editMode.category != bucket.name &&
+              editMode.active == false
+            ) {
+              editMode.active = true;
+            }
+            editMode.category = bucket.name;
+            activeSampleButtons =
+              document.getElementsByClassName("sampleButton");
+          }}
+        >
+          <p class="led" style={bucket.hslstring} />
+          <p
+            contenteditable="true"
+            bind:innerHTML={defaultBuckets[index]}
+            on:focus={() => (editCategories = true)}
+            on:blur={() => {
+              bucket.setname(defaultBuckets[index]);
+              buckets = buckets;
+              editCategories = false;
+            }}
+          />
           <p>{bucket.samples.length}</p>
-        </li>
+        </button>
+      {/each}
+      <!-- <button id="export" on:click={exportSamples}> -->
+      <button id="export" on:click={exportZip}>
+        <p>Export {classified} Samples <br /> ({megabytes} MB, {duration} s)</p>
       </button>
-    {/each}
-    <button id="export" on:click={exportSamples}>
-      <p>Export {classified} Samples ({megabytes} MB, {duration} s)</p>
-    </button>
-  </div>
+    </div>
   </ul>
 </main>
 
 <style>
+  * {
+    /* border: solid white 1px !important; */
+    text-transform: uppercase;
+  }
   #splash {
     color: gray;
     font-family: monospace;
@@ -411,7 +461,7 @@
     line-height: 4rem;
   }
   #splash h1 {
-    transform: scale(1,2.5) skew(-40deg);
+    transform: scale(1, 2.5) skew(-40deg);
   }
   h3 {
     font-size: 2rem;
@@ -419,9 +469,11 @@
     letter-spacing: 1rem;
   }
   #export {
-    grid-column: 1/3;
+    /* grid-column: 1/3; */
     background: #222;
-    color: #aaa;
+    color: #ccc;
+    display: flex;
+    justify-content: center;
   }
   #export:hover {
     background: #333;
@@ -462,20 +514,17 @@
     background: #333;
     color: white;
     padding: 1rem;
-    margin: .1rem;
+    margin: 0.1rem;
   }
   .samples button:focus,
   .buckets button:focus {
-    background: #AAA;
+    background-color: gray;
     color: black;
-    /* box-shadow: 0 0 0 5px white; */
   }
-  .bucket > li {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-  .bucket > li > p {
-    text-align: left;
+  .bucket {
+    /* display: flex; */
+    /* justify-content: center !important; */
+    /* align-items: center; */
   }
   .buckets {
     margin: 0;
@@ -489,23 +538,28 @@
     height: 95%;
     display: flex;
     flex-wrap: wrap;
-    gap: .1rem;
+    gap: 0.1rem;
   }
   .buckets > div > button {
     flex-basis: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     color: white;
     background: none;
     font-size: 1.15rem;
     margin: 2px;
     border: none;
   }
-
+  #export p {
+    grid-column: 1 / 3;
+  }
   p.led {
     margin: auto;
-    background: white;
+    background: #ccc;
     border-radius: 50%;
-    height: .5rem;
-    width: .5rem;
-    border: solid white .05rem;
+    height: 0.6rem;
+    width: 0.6rem;
+    border: solid #eee 0.1rem;
+    /* justify-self: end; */
   }
 </style>

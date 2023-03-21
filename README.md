@@ -12,10 +12,9 @@ In the aftermath of that video, I found myself still overwhelmed by the amount o
 
 1. Load some audio files
 1. Use the keyboard shortcuts to classify the samples
-1. Export samples
-    - Note: Chrome browser will allow you to download hundreds of files at once, other browsers do not!
+1. Export samples as a zip file
 
 It's just that easy!
 
 This app is a work in progress.
-Please email beepnboopEvan@gmail.com with comments and suggestions
+Please open an issue on github with any bugs or papercuts you discover. Thanks! -Evan

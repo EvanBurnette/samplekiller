@@ -2,22 +2,26 @@
 ## User Stories
 ### In Progress
 
-1. Users can click on a category button to categorize the current sample
-    * focus will return to the last sample afterwards so that the user doesn't lose their place
+1. Deploy to samplekiller.com
     
 ### To Do
-1. Create guided demo mode with a uncategorized demo sample pack to download
-
+1. When more than one category begins with the same letter we need to wait on until the next keypress until a unique key is pressed
 1. When a user loads samples, it resets the program state
-
-1. Use JSZip on the client to zip the samples up for export
+1. Users have the option of setting a global prefix for all samples in this sample pack
+1. Optionally add a README.md and LICENSE.md automatically to the sample pack
+1. Users can click on a category button to categorize the current sample
+    * focus will return to the last sample afterwards so that the user doesn't lose their place
+1. Create guided demo mode with a uncategorized demo sample pack to download
 
 1. Choose a *better* data structure and refactor for that data structure ???
         - 1 Array of objects for the sample list + links + src
 
 1. Allow users to work on mobile devices
 
+
 ### Done
+
+1. Use JSZip on the client to zip the samples up for export
 
 1. Users can customize the names and shortcut keys of each category
     * Add an edit button to each bucket button, which reveals the edit mode
